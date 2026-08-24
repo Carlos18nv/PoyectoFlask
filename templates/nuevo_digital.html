@@ -5,15 +5,21 @@
     <div class="card">
         <div class="card-body">
             <h2 class="mb-4">💾 Nuevo Producto Digital</h2>
-            <form method="POST">
-                <div class="mb-3">
-                    <label class="form-label">Código</label>
-                    <input type="text" class="form-control" name="codigo" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Nombre</label>
-                    <input type="text" class="form-control" name="nombre" required>
-                </div>
+            <form action="{{ url_for('nuevo_producto_digital') }}" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="codigo" class="form-label">Código del Producto</label>
+                <input type="text" class="form-control" id="codigo" name="codigo" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="imagen" class="form-label">Imagen del Producto (Opcional)</label>
+                <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
+            </div>
+
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre del Producto</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" required>
+            </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Precio base ($)</label>

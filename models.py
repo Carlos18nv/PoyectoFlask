@@ -57,8 +57,16 @@ class Producto(db.Model):
     # Columnas exclusivas de ProductoPerecible
     dias_para_vencer = db.Column(db.Integer, nullable=True)
 
+    # Imagen de producto
+    imagen_url = db.Column(db.String(255), nullable=True)
+
     # Define qué clase usar
     tipo = db.Column(db.String(30))
+
+    def get_imagen(self):
+        if self.imagen_url:
+            return f"uploads/{self.imagen_url}"
+        return "default_product.png"
 
     __mapper_args__ = {
         "polymorphic_identity": "producto",

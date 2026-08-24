@@ -11,21 +11,29 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('inicio') }}">🛒 Tienda Online</a>
-            <div class="collapse navbar-collapse">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('inicio') }}">Catálogo</a>
                     </li>
-                    {% if session.get('usuario_id') %}
+                    {% if session.get('usuario_rol') == 'admin' %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            + Agregar producto
+                            ⚙️ Panel Admin
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('nuevo_producto_fisico') }}">Producto Físico</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('nuevo_producto_digital') }}">Producto Digital</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('nuevo_producto_perecible') }}">Producto Perecible</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('nuevo_producto_fisico') }}">+ Producto Físico</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('nuevo_producto_digital') }}">+ Producto Digital</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('nuevo_producto_perecible') }}">+ Producto Perecible</a></li>
                         </ul>
+                    </li>
+                    {% endif %}
+                    {% if session.get('usuario_rol') == 'cliente' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('ver_carrito') }}">🛍️ Mi carrito</a>
                     </li>
                     {% endif %}
                 </ul>

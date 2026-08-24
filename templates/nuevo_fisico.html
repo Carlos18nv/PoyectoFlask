@@ -9,15 +9,20 @@
         <div class="card-body">
             <h2 class="mb-4">📦 Nuevo Producto Físico</h2>
 
-            <form method="POST">
+            <form action="{{ url_for('nuevo_producto_fisico') }}" method="POST" enctype="multipart/form-data">
                 <div class="mb-3">
-                    <label class="form-label">Código</label>
-                    <input type="text" class="form-control" name="codigo" required>
+                    <label for="codigo" class="form-label">Código del Producto</label>
+                    <input type="text" class="form-control" id="codigo" name="codigo" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="imagen" class="form-label">Imagen del Producto (Opcional)</label>
+                    <input type="file" class="form-control" id="imagen" name="imagen" accept="image/*">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Nombre</label>
-                    <input type="text" class="form-control" name="nombre" required>
+                    <label for="nombre" class="form-label">Nombre del Producto</label>
+                    <input type="text" class="form-control" id="nombre" name="nombre" required>
                 </div>
 
                 <div class="row">

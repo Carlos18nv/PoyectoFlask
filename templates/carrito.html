@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block titulo %}Mi Carrito{% endblock %}
+
+{% block content %}
+    <a href="{{ url_for('inicio') }}" class="btn btn-outline-secondary mb-3">← Seguir comprando</a>
+
+    <h1 class="mb-4">🛍️ Mi Carrito</h1>
+
+    {% if items %}
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Producto</th>
+                    <th>Precio unitario</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>
+                        <img src="{{ url_for('static', filename=item.producto.get_imagen()) }}" 
+                             alt="{{ item.producto.nombre }}"
+                             class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;">
+                    </td>
+                    <td>
+                        {{ item.producto.nombre }}
+                        <span class="badge bg-secondary">{{ item.producto.tipo }}</span>
+                    </td>
+                    <td>${{ "%.2f"|format(item.producto.precio_final()) }}</td>
+                    <td>{{ item.cantidad }}</td>
+                    <td class="fw-bold">${{ "%.2f"|format(item.subtotal) }}</td>
+                    <td>
+                        <form action="{{ url_for('eliminar_carrito', producto_id=item.producto.id) }}" method="POST">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Quitar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-end">
+            <div class="card shadow-sm" style="width: 20rem;">
+                <div class="card-body">
+                    <h4 class="d-flex justify-content-between m-0">
+                        <span>Total:</span>
+                        <span>${{ "%.2f"|format(total) }}</span>
+                    </h4>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Tu carrito está vacío. <a href="{{ url_for('inicio') }}" class="alert-link">Ve al catálogo</a> y agrega algún producto.
+        </div>
+    {% endif %}
+{% endblock %}

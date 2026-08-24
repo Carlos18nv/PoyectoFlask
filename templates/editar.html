@@ -13,7 +13,11 @@
                 Código: {{ producto.codigo }} (no editable)
             </p>
 
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label class="form-label">Imagen (Opcional - dejar en blanco para mantener actual)</label>
+                    <input type="file" class="form-control" name="imagen" accept="image/*">
+                </div>
                 <div class="mb-3">
                     <label class="form-label">Nombre</label>
                     <input type="text" class="form-control" name="nombre" value="{{ producto.nombre }}" required>

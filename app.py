@@ -1,8 +1,9 @@
-
-
+import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from werkzeug.utils import secure_filename
 from config import Config
 from models import db, Producto, ProductoFisico, ProductoDigital, ProductoPerecible, Usuario
+from auth import login_requerido, rol_requerido
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -26,6 +27,7 @@ def detalle_producto(producto_id):
 
 
 @app.route("/productos/nuevo/fisico", methods=["GET", "POST"])
+@rol_requerido("admin")
 def nuevo_producto_fisico():
     if request.method == "POST":
         try:
@@ -37,13 +39,20 @@ def nuevo_producto_fisico():
                 peso_kg=float(request.form["peso_kg"]),
                 costo_envio_por_kg=float(request.form["costo_envio_por_kg"]),
             )
+            
+            imagen = request.files.get("imagen")
+            if imagen and imagen.filename:
+                filename = secure_filename(imagen.filename)
+                imagen.save(os.path.join(app.root_path, "static", "uploads", filename))
+                producto.imagen_url = filename
+                
             db.session.add(producto)
             db.session.commit()
             flash(f"Producto físico '{producto.nombre}' creado correctamente.", "success")
             return redirect(url_for("inicio"))
         except ValueError:
             flash("Revisa que los campos numéricos tengan valores válidos.", "danger")
-        except Exception:
+        except Exception as e:
             db.session.rollback()
             flash("Ocurrió un error. Verifica que el código no esté repetido.", "danger")
 
@@ -51,6 +60,7 @@ def nuevo_producto_fisico():
 
 
 @app.route("/productos/nuevo/digital", methods=["GET", "POST"])
+@rol_requerido("admin")
 def nuevo_producto_digital():
     if request.method == "POST":
         try:
@@ -61,6 +71,13 @@ def nuevo_producto_digital():
                 stock=int(request.form["stock"]),
                 licencia=request.form["licencia"],
             )
+            
+            imagen = request.files.get("imagen")
+            if imagen and imagen.filename:
+                filename = secure_filename(imagen.filename)
+                imagen.save(os.path.join(app.root_path, "static", "uploads", filename))
+                producto.imagen_url = filename
+                
             db.session.add(producto)
             db.session.commit()
             flash(f"Producto digital '{producto.nombre}' creado correctamente.", "success")
@@ -75,6 +92,7 @@ def nuevo_producto_digital():
 
 
 @app.route("/productos/nuevo/perecible", methods=["GET", "POST"])
+@rol_requerido("admin")
 def nuevo_producto_perecible():
     if request.method == "POST":
         try:
@@ -85,6 +103,13 @@ def nuevo_producto_perecible():
                 stock=int(request.form["stock"]),
                 dias_para_vencer=int(request.form["dias_para_vencer"]),
             )
+            
+            imagen = request.files.get("imagen")
+            if imagen and imagen.filename:
+                filename = secure_filename(imagen.filename)
+                imagen.save(os.path.join(app.root_path, "static", "uploads", filename))
+                producto.imagen_url = filename
+                
             db.session.add(producto)
             db.session.commit()
             flash(f"Producto perecible '{producto.nombre}' creado correctamente.", "success")
@@ -99,6 +124,7 @@ def nuevo_producto_perecible():
 
 
 @app.route("/productos/<int:producto_id>/editar", methods=["GET", "POST"])
+@rol_requerido("admin")
 def editar_producto(producto_id):
     producto = Producto.query.get_or_404(producto_id)
 
@@ -107,6 +133,13 @@ def editar_producto(producto_id):
             producto.nombre = request.form["nombre"]
             producto.precio_base = float(request.form["precio_base"])
             producto.stock = int(request.form["stock"])
+            
+            imagen = request.files.get("imagen")
+            if imagen and imagen.filename:
+                filename = secure_filename(imagen.filename)
+                imagen.save(os.path.join(app.root_path, "static", "uploads", filename))
+                producto.imagen_url = filename
+                
             db.session.commit()
             flash(f"Producto '{producto.nombre}' actualizado correctamente.", "success")
             return redirect(url_for("detalle_producto", producto_id=producto.id))
@@ -117,12 +150,58 @@ def editar_producto(producto_id):
 
 
 @app.route("/productos/<int:producto_id>/eliminar", methods=["POST"])
+@rol_requerido("admin")
 def eliminar_producto(producto_id):
     producto = Producto.query.get_or_404(producto_id)
     producto.activo = False
     db.session.commit()
     flash(f"Producto '{producto.nombre}' desactivado del catálogo.", "success")
     return redirect(url_for("inicio"))
+
+
+@app.route("/carrito/agregar/<int:producto_id>", methods=["POST"])
+@login_requerido
+def agregar_carrito(producto_id):
+    producto = Producto.query.get_or_404(producto_id)
+
+    carrito = session.get("carrito", {})
+    clave = str(producto_id)
+    carrito[clave] = carrito.get(clave, 0) + 1
+    session["carrito"] = carrito
+
+    flash(f"'{producto.nombre}' agregado al carrito.", "success")
+    return redirect(request.referrer or url_for("inicio"))
+
+
+@app.route("/carrito")
+@login_requerido
+def ver_carrito():
+    carrito = session.get("carrito", {})
+    items = []
+    total = 0.0
+
+    for clave, cantidad in carrito.items():
+        producto = Producto.query.get(int(clave))
+        if producto:
+            subtotal = producto.precio_final() * cantidad
+            total += subtotal
+            items.append({"producto": producto, "cantidad": cantidad, "subtotal": subtotal})
+
+    return render_template("carrito.html", items=items, total=total)
+
+
+@app.route("/carrito/eliminar/<int:producto_id>", methods=["POST"])
+@login_requerido
+def eliminar_carrito(producto_id):
+    carrito = session.get("carrito", {})
+    clave = str(producto_id)
+
+    if clave in carrito:
+        del carrito[clave]
+        session["carrito"] = carrito
+        flash("Producto quitado del carrito.", "success")
+
+    return redirect(url_for("ver_carrito"))
 
 
 @app.route("/registro", methods=["GET", "POST"])
