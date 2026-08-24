@@ -41,13 +41,10 @@ Al ejecutar `init_db.py` se generan automáticamente los siguientes usuarios de 
 ## 📸 Capturas de Pantalla
 
 ### Catálogo de Productos
-*(Asegúrate de guardar la imagen con el nombre `catalogo.png` en esta misma carpeta)*
 ![Catálogo](catalogo.png)
 
 ### Detalle del Producto
-*(Asegúrate de guardar la imagen con el nombre `detalle.png` en esta misma carpeta)*
 ![Detalle de Producto](detalle.png)
 
 ### Carrito de Compras
-*(Asegúrate de guardar la imagen con el nombre `carrito.png` en esta misma carpeta)*
 ![Carrito](carrito.png)
